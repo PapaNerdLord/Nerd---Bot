@@ -55,24 +55,24 @@ public class TestBot1 extends DefaultBWListener {
             units.append(myUnit.getType()).append(" ").append(myUnit.getTilePosition()).append("\n");
 
           //if we're running out of supply and have enough minerals ...
-            if ((self.supplyTotal() - self.supplyUsed() < 2) && (self.minerals() >= 100)) {
-            	//iterate over units to find a worker
-            		if (myUnit.getType() == UnitType.Terran_SCV) {
-            			//get a nice place to build a supply depot 
-            			TilePosition buildTile = 
-            				getBuildTile(myUnit, UnitType.Terran_Supply_Depot, self.getStartLocation());
-            			//and, if found, send the worker to build it (and leave others alone - break;)
-            			if (buildTile != null) {
-            				myUnit(UnitType.Terran_Supply_Depot);
-            				break;
-            			
-            		}
-            	}
-            }
-            
+            if ((myUnit.getType() == UnitType.Terran_SCV) && (self.supplyTotal() - self.supplyUsed() < 5) && (self.minerals() >= 100)) {
+            	System.out.println("below depot if statement");
+	            	
+	            			//get a nice place to build a supply depot 
+	            			TilePosition buildTile = 
+	            				getBuildTile(myUnit, UnitType.Terran_Supply_Depot, self.getStartLocation());
+	            			//and, if found, send the worker to build it (and leave others alone - break;)
+	            			if (buildTile != null) {
+	            				myUnit.build(UnitType.Terran_Supply_Depot, buildTile);
+	            				break;
+	            			
+	            		}
+	            	}
+            	
             //if there's enough minerals, train an SCV
-            
-            if (myUnit.getType() == UnitType.Terran_Command_Center && self.minerals() >= 50) {
+            if (myUnit.getType() == UnitType.Terran_Command_Center && self.minerals() >= 100)
+            {
+            	
                 myUnit.train(UnitType.Terran_SCV);
             }
             
@@ -104,16 +104,60 @@ public class TestBot1 extends DefaultBWListener {
     
     }
 
-    private void myUnit(UnitType terran_Supply_Depot) {
-		// TODO Auto-generated method stub
+    public TilePosition getBuildTile(Unit builder, UnitType buildingType, TilePosition aroundTile){
 		
-	}
+		TilePosition ret = null;
+		int maxDist = 3;
+    	int stopDist = 40;
+		
+    	while ((maxDist < stopDist) && (ret == null)) {
+    		for (int i=aroundTile.getX()-maxDist; i<=aroundTile.getX()+maxDist; i++) {
+    			for (int j=aroundTile.getY()-maxDist; j<=aroundTile.getY()+maxDist; j++) {
+    				if (game.canBuildHere(new TilePosition(i,j), buildingType,  builder, false)) {
+    					
+    					System.out.println("below Dicks");
+    					// units that are blocking the tile
+    					boolean unitsInWay = false;
+    					for (Unit u : game.getAllUnits()) 
+    					{
+    						if (u.getID() == builder.getID()) continue;
+    						if ((Math.abs(u.getTilePosition().getX()-i) < 4) && (Math.abs(u.getTilePosition().getY()-j) < 4)) unitsInWay = true;
+    					}
+    					if (!unitsInWay) 
+    					{
+    						System.out.println("above Step Brothers Balls On Drumset");
+    						return new TilePosition(i, j);
+    					}
+    				}
+    			}
+    		}
+    		maxDist += 2;
+    	}
+    	
+    	if (ret == null) game.printf("Unable to find suitable build position for "+buildingType.toString());
+    	return ret;
+    }
 
-	private TilePosition getBuildTile(Unit myUnit, UnitType terran_Supply_Depot, TilePosition startLocation) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    
+    
+/*
+    public TilePosition getBuildTile(Unit builder, UnitType buildingType, TilePosition aroundTile) {
+    	TilePosition ret = null;
+    	int maxDist = 3;
+    	int stopDist = 40;
+    	
+    	// Refinery, Assimilator, Extractor
+    	if (buildingType.isRefinery()) {
+    		for (Unit n : game.neutral().getUnits()) {
+    			if ((n.getType() == UnitType.Resource_Vespene_Geyser) && 
+    					( Math.abs(n.getTilePosition().getX() - aroundTile.getX()) < stopDist ) &&
+    					( Math.abs(n.getTilePosition().getY() - aroundTile.getY()) < stopDist )
+    					) return n.getTilePosition();
+    		}
+    	}
+    	
 
+ */
 	public static void main(String[] args) {
         new TestBot1().run();
     }
