@@ -10,6 +10,8 @@ public class TestBot1 extends DefaultBWListener {
 
     private Player self;
 
+	private boolean isIdle;
+
     public void run() {
         mirror.getModule().setEventListener(this);
         mirror.startGame();
@@ -53,9 +55,10 @@ public class TestBot1 extends DefaultBWListener {
         //iterate through my units
         for (Unit myUnit : self.getUnits()) {
             units.append(myUnit.getType()).append(" ").append(myUnit.getTilePosition()).append("\n");
+            
 
           //if we're running out of supply and have enough minerals ...
-            if ((myUnit.getType() == UnitType.Terran_SCV) && (self.supplyTotal() - self.supplyUsed() < 5) && (self.minerals() >= 100)) {
+            if ((myUnit.getType() == UnitType.Terran_SCV) && (self.supplyTotal() - self.supplyUsed() <= 3) && (self.minerals() >= 100)) {
             	System.out.println("below depot if statement");
 	            	
 	            			//get a nice place to build a supply depot 
@@ -64,19 +67,57 @@ public class TestBot1 extends DefaultBWListener {
 	            			//and, if found, send the worker to build it (and leave others alone - break;)
 	            			if (buildTile != null) {
 	            				myUnit.build(UnitType.Terran_Supply_Depot, buildTile);
-	            				break;
+	            				return;
 	            			
 	            		}
 	            	}
+            
+          
+
+            
+                if ((myUnit.getType() == UnitType.Terran_SCV) && self.minerals() >= 150) {
+                	
+    	            	
+
+    	            			TilePosition buildTile = 
+    	            				getBuildTile(myUnit, UnitType.Terran_Barracks, self.getStartLocation());
+
+    	            			if (buildTile != null) {
+    	            				myUnit.build(UnitType.Terran_Barracks, buildTile);
+    	            				return;
+    	            			
+    	            		}
+    	            	}
             	
+            
+            
+            
+            
+            
             //if there's enough minerals, train an SCV
             if (myUnit.getType() == UnitType.Terran_Command_Center && self.minerals() >= 100)
             {
             	
                 myUnit.train(UnitType.Terran_SCV);
-            }
+            } 
             
+           
+         	
+          
+           
+            
+            
+            if (myUnit.getType() == UnitType.Terran_Barracks && self.minerals() >= 50)
+            {
+            	
+                myUnit.train(UnitType.Terran_Marine);
+            } 
 
+            
+            
+            
+            
+            
             //if it's a drone and it's idle, send it to the closest mineral patch
             if (myUnit.getType().isWorker() && myUnit.isIdle()) {
                 Unit closestMineral = null;
@@ -104,16 +145,27 @@ public class TestBot1 extends DefaultBWListener {
     
     }
 
-    public TilePosition getBuildTile(Unit builder, UnitType buildingType, TilePosition aroundTile){
+    private void getInteger() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void then(UnitCommandType cancel_Train) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public TilePosition getBuildTile(Unit builder, UnitType buildingType, TilePosition aroundTile){
 		
 		TilePosition ret = null;
-		int maxDist = 3;
+		int maxDist = 2;
     	int stopDist = 40;
 		
     	while ((maxDist < stopDist) && (ret == null)) {
     		for (int i=aroundTile.getX()-maxDist; i<=aroundTile.getX()+maxDist; i++) {
     			for (int j=aroundTile.getY()-maxDist; j<=aroundTile.getY()+maxDist; j++) {
-    				if (game.canBuildHere(new TilePosition(i,j), buildingType,  builder, false)) {
+    				if (game.canBuildHere(new TilePosition(i,j), buildingType,  builder, false)) 
+    				{
     					
     					System.out.println("below Dicks");
     					// units that are blocking the tile
@@ -128,6 +180,11 @@ public class TestBot1 extends DefaultBWListener {
     						System.out.println("above Step Brothers Balls On Drumset");
     						return new TilePosition(i, j);
     					}
+    					isIdle = true;
+    					then (ret == null );
+    					
+    						
+    					
     				}
     			}
     		}
@@ -140,7 +197,17 @@ public class TestBot1 extends DefaultBWListener {
 
     
     
-/*
+private void then(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+private void isIdle() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/*
     public TilePosition getBuildTile(Unit builder, UnitType buildingType, TilePosition aroundTile) {
     	TilePosition ret = null;
     	int maxDist = 3;
